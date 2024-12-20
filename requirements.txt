@@ -1,6 +1,6 @@
 pandas
 numpy
-whisper
+openai-whisper
 jiwer
 sentence-transformers
 langchain-google-genai
