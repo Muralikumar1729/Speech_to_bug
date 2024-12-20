@@ -1,0 +1,7 @@
+pandas
+numpy
+whisper
+jiwer
+sentence-transformers
+langchain-google-genai
+rouge-score
