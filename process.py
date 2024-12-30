@@ -102,7 +102,7 @@ def process_file(file_path, ground_truth, prompt_template):
     word_error_rate = calculate_wer(actual_transcription, transcription)
     context_relevancy_title = calculate_semantic_similarity(transcription, predicted_title)
     context_relevancy_desc = calculate_semantic_similarity(transcription, predicted_description)
-    nli_pipeline = pipeline("text-classification", model="facebook/bart-large-mnli")
+    nli_pipeline = pipeline("text-classification", model="roberta-large-mnli")
     NLI_title_pred = nli_pipeline(f"{actual_transcription} \n {predicted_title}")[0]
     NLI_desc_pred = nli_pipeline(f"{actual_transcription} \n {predicted_description}")[0]
     NLI_title_act = nli_pipeline(f"{actual_transcription} \n {actual_title}")[0]
