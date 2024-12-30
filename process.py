@@ -11,7 +11,7 @@ import streamlit as st
 # Initialize Models
 whisper_model = whisper.load_model("small")
 semantic_similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
-API_KEY = 'AIzaSyAeY-JZQUTeI8kCgVt1Ey_sufpvvjPB9p0'
+API_KEY = 'AIz-'
 llm = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
     temperature=0.5,
