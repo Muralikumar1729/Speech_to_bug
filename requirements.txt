@@ -6,3 +6,4 @@ jiwer
 sentence-transformers
 langchain-google-genai
 rouge-score
+seaborn
