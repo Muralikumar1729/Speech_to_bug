@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
 import tempfile
-from process import process_file, process_inference
-from visualization import plot_comparisons
+from process_v2 import process_file, process_inference
+from visualization_v3 import plot_comparisons
 import os
 
 def print_tables(df,mode):
-    #print("mode---------------------------------------------",mode)
+    
     st.subheader("Predicted Transcriptions and Defect Details")
     st.dataframe(df[["File Name", "Predicted Transcription", "Generated Defect Title", "Generated Defect Description"]], width=1000)
     if mode=="Evaluation":
@@ -14,16 +14,16 @@ def print_tables(df,mode):
         st.dataframe(df[["File Name", "Actual Transcription", "Predicted Transcription", "ROUGE-1", "ROUGE-2", "ROUGE-L", "WER"]], width=1000)
 
         st.subheader("Defect Title Metrics")
-        st.dataframe(df[["File Name", "Actual Title", "Generated Defect Title", "Semantic Similarity Title", "Context Relevancy Title", "NLI Title Label", "NLI Title Score"]], width=1000)
+        st.dataframe(df[["File Name", "Actual Title", "Generated Defect Title", "Semantic Similarity Title", "Context Relevancy Title", "NLI Title Label actual", "NLI Title Score actual","NLI Title Label predicted","NLI Title Score predicted"]], width=1000)
 
         st.subheader("Defect Description Metrics")
-        st.dataframe(df[["File Name", "Actual Description", "Generated Defect Description", "Semantic Similarity Description", "Context Relevancy Description", "NLI Description Label", "NLI Description Score"]], width=1000)
+        st.dataframe(df[["File Name", "Actual Description", "Generated Defect Description", "Semantic Similarity Description", "Context Relevancy Description", "NLI Description Label actual", "NLI Description Score actual", "NLI Description Label predicted","NLI Description Score predicted"]], width=1000)
     else:
         st.subheader("Defect Title Metrics")
-        st.dataframe(df[["File Name", "Generated Defect Title", "Context Relevancy Title", "NLI Title Label", "NLI Title Score"]], width=1000)
+        st.dataframe(df[["File Name", "Generated Defect Title", "Context Relevancy Title", "NLI Title Label predicted", "NLI Title Score predicted"]], width=1000)
 
         st.subheader("Defect Description Metrics")
-        st.dataframe(df[["File Name",  "Generated Defect Description", "Context Relevancy Description", "NLI Description Label", "NLI Description Score"]], width=1000)
+        st.dataframe(df[["File Name",  "Generated Defect Description", "Context Relevancy Description", "NLI Description Label predicted", "NLI Description Score predicted"]], width=1000)
 
 
 
@@ -68,7 +68,7 @@ def main():
                 #st.dataframe(df)
                 print_tables(df,mode)
                 # Generate plots
-                plot_comparisons(df)
+                plot_comparisons(df,True)
 
                 # Allow users to download the result as a CSV file
                 csv = df.to_csv(index=False).encode('utf-8')

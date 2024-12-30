@@ -2,102 +2,89 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def plot_comparisons(df):
+def plot_comparisons(df, is_inference=False):
     st.subheader("📊 Comparison Plots")
 
-    # Create a figure and axis for all subplots
-    fig, axs = plt.subplots(2, 2, figsize=(14, 12))  # You can adjust the grid size as needed
-    axs = axs.flatten()  # Flatten to make indexing easier
+    if is_inference:
+        st.markdown("### Inference Mode: Predicted Scores Only")
 
-    # Plot for Actual Title vs Predicted Title
-    sns.barplot(
-        x="File Name", 
-        y="NLI Title Score", 
-        data=df, 
-        color="blue", 
-        alpha=0.6, 
-        ax=axs[0]
-    )
-    for bar, label in zip(axs[0].patches, df["NLI Title Label"]):
-        axs[0].text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.01,
-            label,
-            ha="center",
-            va="bottom",
-            fontsize=9
-        )
-    axs[0].set_xlabel("File Name")
-    axs[0].set_ylabel("NLI Score")
-    axs[0].set_title("NLI Score: Actual Transcription vs. Actual Title")
+        # Plot for Predicted NLI Title Scores
+        if "NLI Title Score predicted" in df.columns:
+            st.markdown("#### NLI Title Scores (Predicted)")
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.barplot(
+                x="File Name",
+                y="NLI Title Score predicted",
+                data=df,
+                color="blue",
+                alpha=0.6,
+                ax=ax
+            )
+            ax.set_xlabel("File Name")
+            ax.set_ylabel("NLI Title Score (Predicted)")
+            ax.set_title("NLI Title Score: Predicted")
+            st.pyplot(fig)
 
-    # Plot for Actual Description vs Predicted Description
-    sns.barplot(
-        x="File Name", 
-        y="NLI Description Score", 
-        data=df, 
-        color="orange", 
-        alpha=0.6, 
-        ax=axs[1]
-    )
-    for bar, label in zip(axs[1].patches, df["NLI Description Label"]):
-        axs[1].text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.01,
-            label,
-            ha="center",
-            va="bottom",
-            fontsize=9
-        )
-    axs[1].set_xlabel("File Name")
-    axs[1].set_ylabel("NLI Score")
-    axs[1].set_title("NLI Score: Actual Transcription vs. Actual Description")
+        # Plot for Predicted NLI Description Scores
+        if "NLI Description Score predicted" in df.columns:
+            st.markdown("#### NLI Description Scores (Predicted)")
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.barplot(
+                x="File Name",
+                y="NLI Description Score predicted",
+                data=df,
+                color="green",
+                alpha=0.6,
+                ax=ax
+            )
+            ax.set_xlabel("File Name")
+            ax.set_ylabel("NLI Description Score (Predicted)")
+            ax.set_title("NLI Description Score: Predicted")
+            st.pyplot(fig)
 
-    # Plot for Predicted Title
-    sns.barplot(
-        x="File Name", 
-        y="NLI Title Score", 
-        data=df, 
-        color="green", 
-        alpha=0.6, 
-        ax=axs[2]
-    )
-    for bar, label in zip(axs[2].patches, df["NLI Title Label"]):
-        axs[2].text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.01,
-            label,
-            ha="center",
-            va="bottom",
-            fontsize=9
-        )
-    axs[2].set_xlabel("File Name")
-    axs[2].set_ylabel("NLI Score")
-    axs[2].set_title("NLI Score: Actual Transcription vs. Predicted Title")
+    else:
+        st.markdown("### Evaluation Mode: Comparison of Actual and Predicted Scores")
 
-    # Plot for Predicted Description
-    sns.barplot(
-        x="File Name", 
-        y="NLI Description Score", 
-        data=df, 
-        color="purple", 
-        alpha=0.6, 
-        ax=axs[3]
-    )
-    for bar, label in zip(axs[3].patches, df["NLI Description Label"]):
-        axs[3].text(
-            bar.get_x() + bar.get_width() / 2,
-            bar.get_height() + 0.01,
-            label,
-            ha="center",
-            va="bottom",
-            fontsize=9
-        )
-    axs[3].set_xlabel("File Name")
-    axs[3].set_ylabel("NLI Score")
-    axs[3].set_title("NLI Score: Actual Transcription vs. Predicted Description")
+        # Plot for NLI Title Scores (Actual vs Predicted)
+        if "NLI Title Score actual" in df.columns and "NLI Title Score predicted" in df.columns:
+            st.markdown("#### NLI Title Scores (Actual vs Predicted)")
+            fig, ax = plt.subplots(figsize=(10, 6))
+            df_melted = df.melt(
+                id_vars=["File Name"],
+                value_vars=["NLI Title Score actual", "NLI Title Score predicted"],
+                var_name="Score Type",
+                value_name="NLI Title Score"
+            )
+            sns.barplot(
+                x="File Name",
+                y="NLI Title Score",
+                hue="Score Type",
+                data=df_melted,
+                ax=ax
+            )
+            ax.set_xlabel("File Name")
+            ax.set_ylabel("NLI Title Score")
+            ax.set_title("NLI Title Score: Actual vs Predicted")
+            st.pyplot(fig)
 
-    # Adjust layout and display all plots
-    plt.tight_layout()
-    st.pyplot(fig)
-
+        # Plot for NLI Description Scores (Actual vs Predicted)
+        if "NLI Description Score actual" in df.columns and "NLI Description Score predicted" in df.columns:
+            st.markdown("#### NLI Description Scores (Actual vs Predicted)")
+            fig, ax = plt.subplots(figsize=(10, 6))
+            df_melted = df.melt(
+                id_vars=["File Name"],
+                value_vars=["NLI Description Score actual", "NLI Description Score predicted"],
+                var_name="Score Type",
+                value_name="NLI Description Score"
+            )
+            sns.barplot(
+                x="File Name",
+                y="NLI Description Score",
+                hue="Score Type",
+                data=df_melted,
+                ax=ax
+            )
+            ax.set_xlabel("File Name")
+            ax.set_ylabel("NLI Description Score")
+            ax.set_title("NLI Description Score: Actual vs Predicted")
+            st.pyplot(fig)

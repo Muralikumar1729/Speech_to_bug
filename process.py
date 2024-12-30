@@ -39,10 +39,7 @@ def clean_llm_output(text):
     return text.replace("Expected Defect Title: ", "").replace("Expected Defect Description: ", "").strip()
 
 def process_inference(file_path, file_name, prompt_template):
-    # Validate the audio file
-    # if not validate_audio(file_path):
-    #     return {"File Name": os.path.basename(file_path), "Error": "Invalid or empty audio file"}
-
+    
     # Transcribe audio to text
     result = whisper_model.transcribe(file_path)
     transcription = result.get("text", "")
@@ -55,11 +52,12 @@ def process_inference(file_path, file_name, prompt_template):
     predicted_description = clean_llm_output(output_text[1] if len(output_text) > 1 else "")
 
     # Evaluate Metrics
-    #rouge_title_scores = calculate_rouge(transcription, predicted_title)
-    #rouge_desc_scores = calculate_rouge(transcription, predicted_description)
+    
     context_relevancy_title = calculate_semantic_similarity(transcription, predicted_title)
     context_relevancy_desc = calculate_semantic_similarity(transcription, predicted_description)
-    nli_pipeline = pipeline("text-classification", model="facebook/bart-large-mnli")
+    
+    nli_pipeline = pipeline("text-classification", model="roberta-large-mnli")
+    
     NLI_title = nli_pipeline(f"{transcription} \n {predicted_title}")[0]
     NLI_desc = nli_pipeline(f"{transcription} \n {predicted_description}")[0]
     # Populate DataFrame with placeholders for metrics not computed in Inference mode
@@ -71,10 +69,10 @@ def process_inference(file_path, file_name, prompt_template):
         "Context Relevancy Title": context_relevancy_title,
         "Context Relevancy Description": context_relevancy_desc,
         # Add placeholders for metrics not computed
-        "NLI Title Label": NLI_title['label'],
-        "NLI Title Score": NLI_title['score'],
-        "NLI Description Label": NLI_desc['label'],
-        "NLI Description Score": NLI_desc['score']
+        "NLI Title Label predicted": NLI_title['label'],
+        "NLI Title Score predicted": NLI_title['score'],
+        "NLI Description Label predicted": NLI_desc['label'],
+        "NLI Description Score predicted": NLI_desc['score']
     }
 
 
@@ -105,9 +103,10 @@ def process_file(file_path, ground_truth, prompt_template):
     context_relevancy_title = calculate_semantic_similarity(transcription, predicted_title)
     context_relevancy_desc = calculate_semantic_similarity(transcription, predicted_description)
     nli_pipeline = pipeline("text-classification", model="facebook/bart-large-mnli")
-    NLI_title = nli_pipeline(f"{transcription} \n {predicted_title}")[0]
-    NLI_desc = nli_pipeline(f"{transcription} \n {predicted_description}")[0]
-
+    NLI_title_pred = nli_pipeline(f"{actual_transcription} \n {predicted_title}")[0]
+    NLI_desc_pred = nli_pipeline(f"{actual_transcription} \n {predicted_description}")[0]
+    NLI_title_act = nli_pipeline(f"{actual_transcription} \n {actual_title}")[0]
+    NLI_desc_act = nli_pipeline(f"{actual_transcription} \n {actual_description}")[0]
     return {
         "File Name": ground_truth["FileName"],
         "Predicted Transcription": transcription,
@@ -124,9 +123,13 @@ def process_file(file_path, ground_truth, prompt_template):
         "Semantic Similarity Description": semantic_similarity_description,
         "Context Relevancy Title": context_relevancy_title,
         "Context Relevancy Description": context_relevancy_desc,
-        "NLI Title Label": NLI_title['label'],
-        "NLI Title Score": NLI_title['score'],
-        "NLI Description Label": NLI_desc['label'],
-        "NLI Description Score": NLI_desc['score'],
+        "NLI Title Label actual": NLI_title_act['label'],
+        "NLI Title Score actual": NLI_title_act['score'],
+        "NLI Description Label actual": NLI_desc_act['label'],
+        "NLI Description Score actual": NLI_desc_act['score'],
+        "NLI Title Label predicted": NLI_title_pred['label'],
+        "NLI Title Score predicted": NLI_title_pred['score'],
+        "NLI Description Label predicted": NLI_desc_pred['label'],
+        "NLI Description Score predicted": NLI_desc_pred['score']
     }
 
