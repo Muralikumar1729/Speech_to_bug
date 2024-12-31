@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import tempfile
-from process_v2 import process_file, process_inference
-from visualization_v3 import plot_comparisons
+from process import process_file, process_inference
+from visualization import plot_comparisons
 import os
 
 def print_tables(df,mode):
