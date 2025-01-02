@@ -7,3 +7,5 @@ sentence-transformers
 langchain-google-genai
 rouge-score
 seaborn
+openai
+openpyxl
